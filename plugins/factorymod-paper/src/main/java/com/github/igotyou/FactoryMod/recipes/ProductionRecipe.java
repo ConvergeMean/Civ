@@ -26,6 +26,7 @@ public class ProductionRecipe extends InputRecipe {
     private ProductionRecipeModifier modifier;
     private Random rng;
     private DecimalFormat decimalFormatting;
+    private boolean allowImprovement;
 
     public ProductionRecipe(
         String identifier,
@@ -36,12 +37,30 @@ public class ProductionRecipe extends InputRecipe {
         ItemStack recipeRepresentation,
         ProductionRecipeModifier modifier
     ) {
+        this(identifier, name, productionTime, inputs, output, recipeRepresentation, modifier, false);
+    }
+
+    public ProductionRecipe(
+        String identifier,
+        String name,
+        int productionTime,
+        ItemMap inputs,
+        ItemMap output,
+        ItemStack recipeRepresentation,
+        ProductionRecipeModifier modifier,
+        boolean allowImprovement
+    ) {
         super(identifier, name, productionTime, inputs);
         this.output = output;
         this.modifier = modifier;
+        this.allowImprovement = allowImprovement;
         this.rng = new Random();
         this.decimalFormatting = new DecimalFormat("#.#####");
         this.recipeRepresentation = recipeRepresentation != null ? recipeRepresentation : new ItemStack(Material.STONE);
+    }
+
+    public boolean isAllowImprovement() {
+        return allowImprovement;
     }
 
     public ItemMap getOutput() {

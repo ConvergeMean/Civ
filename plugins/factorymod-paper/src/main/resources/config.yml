@@ -203,6 +203,35 @@ max_output_chests: 10
 max_fuel_chests: 10
 max_iof_chests: 15
 
+#----------------------------------------------------------------------------------------------------------------------
+# Recipe Improvement (Breeding)
+#
+# Recipe improvement allows players to "breed" production recipes with random rolls, gradually improving efficiency
+# (less input, more output, less charcoal, faster runtime). Each breeding attempt costs items (e.g. 1 Netherite Ingot)
+# configured per-factory under improvement_cost. The feature is enabled per-recipe with allow_improvement: true.
+#
+# default_allow_improvement: When true, production recipes are improveable by default. Individual recipes can override
+#   with allow_improvement: false. When false (default), only recipes explicitly set to allow_improvement: true are improveable.
+default_allow_improvement: false
+#
+# improvement_roll_range: Base range for random rolls when breeding. Applied with logarithmic scaling so improvements
+#   get exponentially harder with each upgrade. Default 0.05.
+improvement_roll_range: 0.05
+#
+# improvement_log_base: Base for the logarithmic scale (effectiveDelta = baseDelta / log_base(improvementCount + 2)).
+#   Higher values = faster diminishing returns. Default 2.
+improvement_log_base: 2
+#
+# Hard caps: Improvement factors are clamped to these ranges. Values below 1.0 = fewer resources consumed,
+# values above 1.0 = more produced. Input/output typically use ±30% (0.7-1.3), charcoal/time use ±50% (0.5-1.5).
+improvement_input_factor_min: 0.7
+improvement_input_factor_max: 1.3
+improvement_output_factor_min: 0.7
+improvement_output_factor_max: 1.3
+improvement_charcoal_factor_min: 0.5
+improvement_charcoal_factor_max: 1.5
+improvement_time_factor_min: 0.5
+improvement_time_factor_max: 1.5
 
 #----------------------------------------------------------------------------------------------------------------------
 #Factories
@@ -295,6 +324,9 @@ max_iof_chests: 15
 #names given to the recipes are identical with the ones used here, even the capitalization has to be the same. The same recipe
 #may be used by multiple factories or exist in the config without being used by any factory.
 
+#improvement_cost (FCC only) enables the recipe improvement (breeding) feature for this factory. Specify items consumed from
+#the input chest each time a player attempts to improve a recipe. Example: improvement_cost: { netherite: { material: NETHERITE_INGOT, amount: 1 } }
+#If omitted, improvement is disabled for this factory regardless of recipe settings.
 
 #Additionally it is also possible to upgrade factories, which turns the factory into a completly different one after a specific
 #recipe. To do so, the upgraded version must be added to the list of factories with FCCUPGRADE as the type identifier. Example:
@@ -461,6 +493,10 @@ factories:
 #forceInclude allows you to indicate that whereever it is used, to force a _new_ recipe to be added to existing factories.
 # this is recipe wide, and can't be changed factory to factory. 
 # This might be replaced by something else later on. 
+
+#allow_improvement (PRODUCTION only) enables recipe improvement (breeding) for this recipe. When true, players can spend
+#the factory's improvement_cost to roll random modifiers (input/output/charcoal/time efficiency). When false, the recipe
+#cannot be improved. Defaults to default_allow_improvement from the global section if not specified.
 
 #2. Compactionrecipe
 

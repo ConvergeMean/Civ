@@ -11,6 +11,7 @@ import com.github.igotyou.FactoryMod.factories.FurnCraftChestFactory;
 import com.github.igotyou.FactoryMod.factories.Pipe;
 import com.github.igotyou.FactoryMod.factories.Sorter;
 import com.github.igotyou.FactoryMod.recipes.IRecipe;
+import com.github.igotyou.FactoryMod.recipes.RecipeImprovement;
 import com.github.igotyou.FactoryMod.repairManager.PercentageHealthRepairManager;
 import java.io.File;
 import java.util.Collection;
@@ -105,6 +106,17 @@ public class FileHandler {
                     config.set(current + ".charcoal-level", fccf.getCharcoalLevel());
                     config.set(current + ".speed-level", fccf.getSpeedLevel());
                     config.set(current + ".charcoal-absorbed", fccf.getCharcoalAbsorbed());
+                    for (IRecipe rec : fccf.getRecipes()) {
+                        RecipeImprovement imp = fccf.getImprovement(rec);
+                        if (imp != null) {
+                            String base = current + ".improvements." + rec.getName();
+                            config.set(base + ".inputFactor", imp.getInputFactor());
+                            config.set(base + ".outputFactor", imp.getOutputFactor());
+                            config.set(base + ".charcoalFactor", imp.getCharcoalFactor());
+                            config.set(base + ".timeFactor", imp.getTimeFactor());
+                            config.set(base + ".count", imp.getImprovementCount());
+                        }
+                    }
                 } else if (f instanceof Pipe) {
                     Pipe p = (Pipe) f;
                     config.set(current + ".type", "PIPE");
@@ -293,6 +305,29 @@ public class FileHandler {
                             for (IRecipe r : fac.getRecipes()) {
                                 if (r.getName().equals(countKey)) {
                                     fac.setRecipeLevel(r, runs);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    ConfigurationSection improvementsSection = current.getConfigurationSection("improvements");
+                    if (improvementsSection != null) {
+                        for (String recipeName : improvementsSection.getKeys(false)) {
+                            ConfigurationSection impSec = improvementsSection.getConfigurationSection(recipeName);
+                            if (impSec == null) {
+                                continue;
+                            }
+                            for (IRecipe r : fac.getRecipes()) {
+                                if (r.getName().equals(recipeName)) {
+                                    RecipeImprovement imp = new RecipeImprovement(
+                                        impSec.getDouble("inputFactor", 1.0),
+                                        impSec.getDouble("outputFactor", 1.0),
+                                        impSec.getDouble("charcoalFactor", 1.0),
+                                        impSec.getDouble("timeFactor", 1.0),
+                                        impSec.getInt("count", 0)
+                                    );
+                                    manager.applyImprovementCaps(imp);
+                                    fac.setImprovement(r, imp);
                                     break;
                                 }
                             }

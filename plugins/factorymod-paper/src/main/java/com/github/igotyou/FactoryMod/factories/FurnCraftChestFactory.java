@@ -10,6 +10,7 @@ import com.github.igotyou.FactoryMod.utility.IIOFInventoryProvider;
 import com.github.igotyou.FactoryMod.powerManager.IPowerManager;
 import com.github.igotyou.FactoryMod.recipes.IRecipe;
 import com.github.igotyou.FactoryMod.recipes.InputRecipe;
+import com.github.igotyou.FactoryMod.recipes.RecipeImprovement;
 import com.github.igotyou.FactoryMod.recipes.PylonRecipe;
 import com.github.igotyou.FactoryMod.recipes.RecipeScalingUpgradeRecipe;
 import com.github.igotyou.FactoryMod.recipes.RepairRecipe;
@@ -59,6 +60,7 @@ public class FurnCraftChestFactory extends Factory implements IIOFInventoryProvi
     protected IRecipe currentRecipe;
     protected Map<IRecipe, Integer> runCount;
     protected Map<IRecipe, Integer> recipeLevel;
+    protected Map<IRecipe, RecipeImprovement> improvements;
     private UUID activator;
     private double citadelBreakReduction;
     private boolean autoSelect;
@@ -81,6 +83,7 @@ public class FurnCraftChestFactory extends Factory implements IIOFInventoryProvi
         this.active = false;
         this.runCount = new HashMap<>();
         this.recipeLevel = new HashMap<>();
+        this.improvements = new HashMap<>();
         this.recipes = new ArrayList<>();
         this.citadelBreakReduction = citadelBreakReduction;
         this.autoSelect = false;
@@ -468,6 +471,35 @@ public class FurnCraftChestFactory extends Factory implements IIOFInventoryProvi
         if (recipes.contains(r)) {
             recipeLevel.put(r, level);
         }
+    }
+
+    /**
+     * @return The improvement for the given recipe, or null if none
+     */
+    public RecipeImprovement getImprovement(IRecipe recipe) {
+        return improvements.get(recipe);
+    }
+
+    public void setImprovement(IRecipe recipe, RecipeImprovement improvement) {
+        if (recipes.contains(recipe)) {
+            if (improvement == null) {
+                improvements.remove(recipe);
+            } else {
+                improvements.put(recipe, improvement);
+            }
+        }
+    }
+
+    public void removeImprovement(IRecipe recipe) {
+        improvements.remove(recipe);
+    }
+
+    public boolean hasImprovement(IRecipe recipe) {
+        return improvements.containsKey(recipe);
+    }
+
+    public Map<IRecipe, RecipeImprovement> getImprovements() {
+        return improvements;
     }
 
     /**

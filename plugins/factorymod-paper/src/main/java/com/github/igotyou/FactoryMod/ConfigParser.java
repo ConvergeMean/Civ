@@ -85,6 +85,7 @@ public class ConfigParser {
     private int defaultHealth;
     private HashSet<String> forceRecipes;
     private boolean forceIncludeAll;
+    private boolean defaultAllowImprovement;
 
     public ConfigParser(FactoryMod plugin) {
         this.plugin = plugin;
@@ -137,6 +138,8 @@ public class ConfigParser {
         defaultDamagePerBreakPeriod = config.getInt("default_decay_amount", 21);
         long savingIntervall = parseTimeAsTicks(config.getString("saving_intervall", "15m"));
         forceIncludeAll = config.getBoolean("force_include_default", false);
+        defaultAllowImprovement = config.getBoolean("default_allow_improvement", false);
+        applyImprovementConfig(config);
         // save factories on a regular base, unless disabled
         if (savingIntervall > 0) {
             new BukkitRunnable() {
@@ -483,8 +486,15 @@ public class ConfigParser {
         if (config.isConfigurationSection("setupcost")) {
             setupCost = ConfigHelper.parseItemMap(config.getConfigurationSection("setupcost"));
         }
+        ItemMap improvementCost = null;
+        if (config.isConfigurationSection("improvement_cost")) {
+            improvementCost = ConfigHelper.parseItemMap(config.getConfigurationSection("improvement_cost"));
+            if (improvementCost.getTotalUniqueItemAmount() == 0) {
+                improvementCost = null;
+            }
+        }
         FurnCraftChestEgg egg = new FurnCraftChestEgg(name, update, null, fuel, fuelIntervall, returnRate, health,
-            gracePeriod, healthPerDamageIntervall, citadelBreakReduction, setupCost);
+            gracePeriod, healthPerDamageIntervall, citadelBreakReduction, setupCost, improvementCost);
         recipeLists.put(egg, config.getStringList("recipes"));
         return egg;
     }
@@ -574,9 +584,12 @@ public class ConfigParser {
                 }
                 ProductionRecipeModifier modi = parseProductionRecipeModifier(config.getConfigurationSection("modi"));
                 if (modi == null && parentRecipe instanceof ProductionRecipe) {
-                    modi = ((ProductionRecipe) parentRecipe).getModifier().clone();
+                    ProductionRecipeModifier parentModi = ((ProductionRecipe) parentRecipe).getModifier();
+                    modi = parentModi != null ? parentModi.clone() : null;
                 }
-                result = new ProductionRecipe(identifier, name, productionTime, input, output, recipeRepresentation, modi);
+                boolean allowImprovement = config.getBoolean("allow_improvement",
+                    parentRecipe instanceof ProductionRecipe ? ((ProductionRecipe) parentRecipe).isAllowImprovement() : defaultAllowImprovement);
+                result = new ProductionRecipe(identifier, name, productionTime, input, output, recipeRepresentation, modi, allowImprovement);
                 break;
             case "COMPACT":
                 String compactedLore = config.getString("compact_lore",
@@ -1044,6 +1057,25 @@ public class ConfigParser {
                     "The recipe " + reci.getName() + " is specified in the config, but not used in any factory");
             }
         }
+    }
+
+    /**
+     * Reads recipe improvement settings from config.yml and applies them to the manager.
+     * Uses the same config file as all other FactoryMod settings.
+     */
+    private void applyImprovementConfig(FileConfiguration config) {
+        manager.setImprovementCaps(
+            config.getDouble("improvement_input_factor_min", 0.7),
+            config.getDouble("improvement_input_factor_max", 1.3),
+            config.getDouble("improvement_output_factor_min", 0.7),
+            config.getDouble("improvement_output_factor_max", 1.3),
+            config.getDouble("improvement_charcoal_factor_min", 0.5),
+            config.getDouble("improvement_charcoal_factor_max", 1.5),
+            config.getDouble("improvement_time_factor_min", 0.5),
+            config.getDouble("improvement_time_factor_max", 1.5),
+            config.getDouble("improvement_roll_range", 0.05),
+            config.getDouble("improvement_log_base", 2.0)
+        );
     }
 
     private ProductionRecipeModifier parseProductionRecipeModifier(ConfigurationSection config) {

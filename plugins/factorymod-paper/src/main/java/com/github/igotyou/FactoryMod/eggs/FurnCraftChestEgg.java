@@ -29,10 +29,17 @@ public class FurnCraftChestEgg implements IFactoryEgg {
     private double returnRateOnDestruction;
     private double citadelBreakReduction;
     private ItemMap setupCost;
+    private ItemMap improvementCost;
 
     public FurnCraftChestEgg(String name, int updateTime,
                              List<IRecipe> recipes, ItemStack fuel,
                              int fuelConsumptionIntervall, double returnRateOnDestruction, int maximumHealth, long breakGracePeriod, int healthPerDamagePeriod, double citadelBreakReduction, ItemMap setupCost) {
+        this(name, updateTime, recipes, fuel, fuelConsumptionIntervall, returnRateOnDestruction, maximumHealth, breakGracePeriod, healthPerDamagePeriod, citadelBreakReduction, setupCost, null);
+    }
+
+    public FurnCraftChestEgg(String name, int updateTime,
+                             List<IRecipe> recipes, ItemStack fuel,
+                             int fuelConsumptionIntervall, double returnRateOnDestruction, int maximumHealth, long breakGracePeriod, int healthPerDamagePeriod, double citadelBreakReduction, ItemMap setupCost, ItemMap improvementCost) {
         this.name = name;
         this.updateTime = updateTime;
         this.recipes = recipes;
@@ -44,6 +51,7 @@ public class FurnCraftChestEgg implements IFactoryEgg {
         this.maximumHealth = maximumHealth;
         this.citadelBreakReduction = citadelBreakReduction;
         this.setupCost = setupCost;
+        this.improvementCost = improvementCost;
     }
 
     @Override
@@ -163,5 +171,16 @@ public class FurnCraftChestEgg implements IFactoryEgg {
 
     public double getCitadelBreakReduction() {
         return citadelBreakReduction;
+    }
+
+    /**
+     * @return The cost to run Improve Recipe (e.g. 1 Netherite Ingot), or null if improvement is disabled
+     */
+    public ItemMap getImprovementCost() {
+        return improvementCost;
+    }
+
+    public boolean hasImprovementEnabled() {
+        return improvementCost != null && improvementCost.getTotalUniqueItemAmount() > 0;
     }
 }

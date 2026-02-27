@@ -11,6 +11,7 @@ import com.github.igotyou.FactoryMod.structures.BlockFurnaceStructure;
 import com.github.igotyou.FactoryMod.structures.FurnCraftChestStructure;
 import com.github.igotyou.FactoryMod.structures.MultiBlockStructure;
 import com.github.igotyou.FactoryMod.structures.PipeStructure;
+import com.github.igotyou.FactoryMod.recipes.RecipeImprovement;
 import com.github.igotyou.FactoryMod.utility.FactoryModGUI;
 import com.github.igotyou.FactoryMod.utility.FileHandler;
 import com.github.igotyou.FactoryMod.utility.LoggingUtils;
@@ -60,6 +61,17 @@ public class FactoryModManager {
     private Set<String> forceInclude;
     private FactoryModPlayerSettings playerSettings;
     private boolean canUpgrade;
+    // Recipe improvement caps (from config.yml)
+    private double improvementInputMin;
+    private double improvementInputMax;
+    private double improvementOutputMin;
+    private double improvementOutputMax;
+    private double improvementCharcoalMin;
+    private double improvementCharcoalMax;
+    private double improvementTimeMin;
+    private double improvementTimeMax;
+    private double improvementRollRange;
+    private double improvementLogBase;
 
     public FactoryModManager(FactoryMod plugin, Material factoryInteractionMaterial, boolean citadelEnabled,
                              boolean nameLayerEnabled, int redstonePowerOn, int redstoneRecipeChange, boolean logInventories,
@@ -191,6 +203,45 @@ public class FactoryModManager {
 
     public boolean canUpgrade() {
         return canUpgrade;
+    }
+
+    /**
+     * Sets recipe improvement parameters from config. Called by ConfigParser when loading config.yml.
+     */
+    public void setImprovementCaps(double inputMin, double inputMax, double outputMin, double outputMax,
+                                  double charcoalMin, double charcoalMax, double timeMin, double timeMax,
+                                  double rollRange, double logBase) {
+        this.improvementInputMin = inputMin;
+        this.improvementInputMax = inputMax;
+        this.improvementOutputMin = outputMin;
+        this.improvementOutputMax = outputMax;
+        this.improvementCharcoalMin = charcoalMin;
+        this.improvementCharcoalMax = charcoalMax;
+        this.improvementTimeMin = timeMin;
+        this.improvementTimeMax = timeMax;
+        this.improvementRollRange = rollRange;
+        this.improvementLogBase = logBase;
+    }
+
+    public double getImprovementRollRange() {
+        return improvementRollRange;
+    }
+
+    public double getImprovementLogBase() {
+        return improvementLogBase;
+    }
+
+    /**
+     * Clamps the given RecipeImprovement's factors to the configured caps from config.yml.
+     */
+    public void applyImprovementCaps(RecipeImprovement imp) {
+        if (imp == null) {
+            return;
+        }
+        imp.setInputFactorClamped(improvementInputMin, improvementInputMax);
+        imp.setOutputFactorClamped(improvementOutputMin, improvementOutputMax);
+        imp.setCharcoalFactorClamped(improvementCharcoalMin, improvementCharcoalMax);
+        imp.setTimeFactorClamped(improvementTimeMin, improvementTimeMax);
     }
 
     /**
