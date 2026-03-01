@@ -83,8 +83,8 @@ public class FileHandler {
                         ((PercentageHealthRepairManager) fccf
                             .getRepairManager()).getBreakTime());
                     config.set(current + ".runtime", fccf.getRunningTime());
-                    config.set(current + ".selectedRecipe", fccf
-                        .getCurrentRecipe().getName());
+                    IRecipe currentRecipe = fccf.getCurrentRecipe();
+                    config.set(current + ".selectedRecipe", currentRecipe != null ? currentRecipe.getName() : null);
                     config.set(current + ".autoSelect", fccf.isAutoSelect());
                     List<String> recipeList = new LinkedList<String>();
                     for (IRecipe rec : fccf.getRecipes()) {
@@ -184,7 +184,7 @@ public class FileHandler {
     private void loadFromFile(File f, Map<String, IFactoryEgg> eggs) {
         int counter = 0;
         YamlConfiguration config = YamlConfiguration
-            .loadConfiguration(saveFile);
+            .loadConfiguration(f);
         int loadedVersion = config.getInt("version", 1);
         for (String key : config.getKeys(false)) {
             ConfigurationSection current = config.getConfigurationSection(key);

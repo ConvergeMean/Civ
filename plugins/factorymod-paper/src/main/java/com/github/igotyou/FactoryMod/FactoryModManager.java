@@ -101,6 +101,18 @@ public class FactoryModManager {
         forceInclude = new HashSet<>();
         playerSettings = new FactoryModPlayerSettings(plugin);
 
+        // Default improvement caps (overwritten by ConfigParser.applyImprovementConfig)
+        improvementInputMin = 0.7;
+        improvementInputMax = 1.3;
+        improvementOutputMin = 0.7;
+        improvementOutputMax = 1.3;
+        improvementCharcoalMin = 0.5;
+        improvementCharcoalMax = 1.5;
+        improvementTimeMin = 0.5;
+        improvementTimeMax = 1.5;
+        improvementRollRange = 0.05;
+        improvementLogBase = 2.0;
+
         // Normal furnace, craftingtable, chest factories
         possibleCenterBlocks.add(Material.CRAFTING_TABLE);
         possibleInteractionBlock.add(Material.CRAFTING_TABLE);

@@ -31,7 +31,9 @@ public class FactoryMod extends ACivMod {
 
     @Override
     public void onDisable() {
-        manager.shutDown();
+        if (manager != null) {
+            manager.shutDown();
+        }
         plugin.info("Shutting down");
     }
 

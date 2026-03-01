@@ -139,7 +139,6 @@ public class ConfigParser {
         long savingIntervall = parseTimeAsTicks(config.getString("saving_intervall", "15m"));
         forceIncludeAll = config.getBoolean("force_include_default", false);
         defaultAllowImprovement = config.getBoolean("default_allow_improvement", false);
-        applyImprovementConfig(config);
         // save factories on a regular base, unless disabled
         if (savingIntervall > 0) {
             new BukkitRunnable() {
@@ -163,6 +162,7 @@ public class ConfigParser {
         manager = new FactoryModManager(plugin, factoryInteractionMaterial, citadelEnabled, nameLayerEnabled,
             redstonePowerOn, redstoneRecipeChange, logInventories, maxInputChests, maxOutputChests, maxFuelChests,
             maxTotalIOFChests, factoryRenames, canUpgrade);
+        applyImprovementConfig(config);
         upgradeEggs = new HashMap<>();
         recipeLists = new HashMap<>();
         recipeScalingUpgradeMapping = new HashMap<>();
@@ -489,7 +489,7 @@ public class ConfigParser {
         ItemMap improvementCost = null;
         if (config.isConfigurationSection("improvement_cost")) {
             improvementCost = ConfigHelper.parseItemMap(config.getConfigurationSection("improvement_cost"));
-            if (improvementCost.getTotalUniqueItemAmount() == 0) {
+            if (improvementCost == null || improvementCost.getTotalUniqueItemAmount() == 0) {
                 improvementCost = null;
             }
         }
